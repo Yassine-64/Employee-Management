@@ -1,3 +1,6 @@
+from datetime import datetime
+from iemploye import IEmploye
+
 class Employe(IEmploye):
     cpt = 0
 
