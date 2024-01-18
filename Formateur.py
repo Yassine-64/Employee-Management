@@ -1,3 +1,5 @@
+from employee import Employe
+
 class Formateur(Employe):
     _remunerationHSup = 70.00
 
