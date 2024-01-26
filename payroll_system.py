@@ -1,5 +1,6 @@
-from formateur import Formateur
-from agent import Agent
+from formateur import *
+from agent import *
+import json
 
 class PayrollSystem:
     employees = []
@@ -37,6 +38,42 @@ class PayrollSystem:
                 return
         print("Matricule non trouvé.")
 
+    @classmethod
+    def save_employees(cls):
+         with open("employees.json", "w") as file:
+            data = [{"Matricule": emp.Matricule, "Nom": emp.Nom, "DateNaissance": emp.DateNaissance.strftime("%Y-%m-%d"),
+                     "DateEmbauche": emp.DateEmbauche.strftime("%Y-%m-%d"), "SalaireBase": emp.SalaireBase,
+                     "Type": type(emp).__name__,
+                     "HeureSup": getattr(emp, "HeureSup", ""),
+                     "PrimeResponsabilite": getattr(emp, "PrimeResponsabilite", "")} for emp in cls.employees]
+            json.dump(data, file)
+
+    @classmethod
+    def load_employees(cls):
+        try:
+            with open("employees.json", "r") as file:
+                data = json.load(file)
+                cls.employees = []
+                for emp_data in data:
+                    if emp_data["Type"] == "Agent":
+                        employee = Agent(emp_data["Nom"],
+                                        datetime.strptime(emp_data["DateNaissance"], "%Y-%m-%d"),
+                                        datetime.strptime(emp_data["DateEmbauche"], "%Y-%m-%d"),
+                                        emp_data["SalaireBase"],
+                                        emp_data["PrimeResponsabilite"])
+                    elif emp_data["Type"] == "Formateur":
+                        employee = Formateur(emp_data["Nom"],
+                                            datetime.strptime(emp_data["DateNaissance"], "%Y-%m-%d"),
+                                            datetime.strptime(emp_data["DateEmbauche"], "%Y-%m-%d"),
+                                            emp_data["SalaireBase"],
+                                            emp_data["HeureSup"])
+                    else:
+                        # Handle other employee types if needed
+                        continue
+
+                    cls.employees.append(employee)
+        except FileNotFoundError:
+            pass
 if __name__ == "__main__":
     while True:
         PayrollSystem.show_menu()
